@@ -46,11 +46,10 @@ setlargepage.sh内容如下：
 #su root
 mkdir /hugep
 touch /hugep/hugetlbfile
-
 echo 3600 > /proc/sys/vm/nr_hugepages
-
 #./setlp-9916 512
 ./setlp-9916 112
+
 首先说明一下setlargepage.sh文件里的各项内容：
 mkdir -p /hugep 创建hugep目录，用来存放hugetblfile 大页文件
 echo 3600 > /proc/sys/vm/nr_hugepages   创建大页数量； 3600这个大小是由系统内存大小所决定的，系统总内存是31GiB，每个HugePage大小是8MiB， 最多可创建3968个大页，考虑到其他的一些系统开销，我们选择创建3600个大页。

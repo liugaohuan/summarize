@@ -1,0 +1,22 @@
+Understanding ipv6
+
+An Ipv6 address uses 128 bits as opposed to 32 bits in IPv4.
+IPv6 addresses are written using hexadecimal, as opposed to dotted decimal in IPv4. 
+Because an hexadecimal number uses 4 bits this means that an IPv6 address consists of 32 hexadecimal numbers.
+These numbers are grouped in 4’s giving 8 groups or blocks. The groups are written with a : (colon) as a separator.
+
+group1:group2: ……etc…. :group8
+
+Here is an IPv6 address example:
+  2001:0(0000 shortened to 0):9d38:6ab8:1c48:3a1c:a95a:b1c2
+
+Network And Node Addresses
+  In IPv4 an address is split into two components a network component and a node component.
+  This was done initially using Address classes and later using subnet masking.
+  In IPv6 we do the same. The first step is to split the address into two parts.
+  The address is split into 2 64 bit segments the left 64 bits is the network part and the right 64 bits the node part:
+  
+  
+  
+
+

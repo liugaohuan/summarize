@@ -1,22 +1,72 @@
-Understanding ipv6
+Understanding ipv6:
+  An Ipv6 address uses 128 bits as opposed to 32 bits in IPv4.
+  IPv6 addresses are written using hexadecimal, as opposed to dotted decimal in IPv4. 
+  Because an hexadecimal number uses 4 bits this means that an IPv6 address consists of 32 hexadecimal numbers.
+  These numbers are grouped in 4’s giving 8 groups or blocks. The groups are written with a : (colon) as a separator.
 
-An Ipv6 address uses 128 bits as opposed to 32 bits in IPv4.
-IPv6 addresses are written using hexadecimal, as opposed to dotted decimal in IPv4. 
-Because an hexadecimal number uses 4 bits this means that an IPv6 address consists of 32 hexadecimal numbers.
-These numbers are grouped in 4’s giving 8 groups or blocks. The groups are written with a : (colon) as a separator.
+  group1:group2: ……etc…. :group8
+  Here is an IPv6 address example: 2001:0(0000 shortened to 0):9d38:6ab8:1c48:3a1c:a95a:b1c2
 
-group1:group2: ……etc…. :group8
-
-Here is an IPv6 address example:
-  2001:0(0000 shortened to 0):9d38:6ab8:1c48:3a1c:a95a:b1c2
-
-Network And Node Addresses
+Network And Node Addresses Analysis
   In IPv4 an address is split into two components a network component and a node component.
   This was done initially using Address classes and later using subnet masking.
   In IPv6 we do the same. The first step is to split the address into two parts.
   The address is split into 2 64 bit segments the left 64 bits is the network part and the right 64 bits the node part:
   
   
-  
+Configuration Files for setting up ipv6-dhcp-server and radvd look like this:
+  radvd.conf:
+# NOTE: there is no such thing as a working "by-default" configuration file. 
+#       At least the prefix needs to be specified.  Please consult the radvd.conf(5)
+#       man page and/or /usr/share/doc/radvd-*/radvd.conf.example for help.
+#
+#
+interface enP1p3s0f0
+{
+        AdvSendAdvert on;
+        prefix 2001:db8:0:f102::/64
+        {
+                AdvOnLink on;
+                AdvAutonomous on;
+        };
+};
 
+  dhcpd6.conf:
+#
+# DHCPv6 Server Configuration file.
+#   see /usr/share/doc/dhcp-server/dhcpd6.conf.example
+#   see dhcpd.conf(5) man page
+#
+ddns-update-style none;
+default-lease-time 7200;
+max-lease-time 86400;
 
+subnet6 2001:db8:0:f102::/64{
+range6 2001:db8:0:f102::10  2001:db8:0:f102::fff0;
+}
+
+enable ipv6 forwarding:
+ gedit /etc/sysctl.conf and input below content:
+ net.ipv6.conf.all.forwarding=1
+ 
+ configure a static ipv6 address like: 2001:db8:0:f102::2 which is not within range6 2001:db8:0:f102::10  2001:db8:0:f102::fff0;
+ After implementing configurations file above on server sides, some steps are needed to configure on client sides: 
+Open NetworkManager--->Disable ipv4---->Choose 'Auto' for ipv6; 
+
+An ipv6 such like 2001:db8:0:f102:20b:2fff:fe1c:306 is obtained from server;
+and do a simple ping test
+ping 2001:db8:0:f102::2
+Both sides can ping each other.
+
+Some information about dhcpd6 server:
+DHCPv6 servers give out addresses (with the IA_NA option) but don't tell the client anything about the subnet. 
+The client therefore just configures the separate address on the interface. 
+Any routes to the subnet are provided by RA. 
+If the RA would announce the prefix without the auto-configure option then the client wouldn't configure an address automatically, 
+but it would add the route for the local subnet.
+
+Some helpful links:
+https://serverfault.com/questions/918472/why-is-a-128-ipv6-address-assigned-via-dhcpv6-in-ubuntu
+https://serverfault.com/questions/911989/how-to-get-64-as-prefix-length-when-using-dhcpv6-and-radvd
+https://serverfault.com/questions/1096245/simple-stateful-dhcpv6-using-isc-dhcp-and-radvd-doesnt-work
+https://serverfault.com/questions/905332/getting-ipv6-via-radvd-dhcpd6-in-an-lxc-guest-working

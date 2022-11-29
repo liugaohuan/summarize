@@ -60,3 +60,12 @@ Ns（linpack测试矩阵的问题规模大小）的大小，也是跟内存相�
 最终在32GiB的内存上，根据上面公式计算得出，Ns的大小最大在59000左右。超过这个数字，在运行linpack的时候会提示Mem used up.....cannot allocate memory之类的错误，表示无法申请更多的内存。
 Ps和Qs是测试矩阵中表示横向通信和竖向通信的大小，一般单节点的话，即单台设备，Ps要小于Qs的数据。两者相乘是总的测试核心数的大小。
 Ps  4  （横向） Qs  8 （竖向）
+
+
+Some helpful links below:
+https://www.pugetsystems.com/labs/hpc/how-to-run-an-optimized-hpl-linpack-benchmark-on-amd-ryzen-threadripper-2990wx-32-core-performance-1291/
+https://www.samba.org/~ab/power-org-linpack
+https://documentation.sigma2.no/jobs/arm-perf/linpack.html
+https://people.sc.fsu.edu/~jburkardt/c_src/linpack_bench/linpack_bench.c
+https://ulhpc-tutorials.readthedocs.io/en/latest/parallel/mpi/HPL/
+https://github.com/2000nickels/linpackc

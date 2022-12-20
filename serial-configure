@@ -1,0 +1,45 @@
+PMON常用命令 手动加载内核启动系统的三条命令,因为在用光驱安装系统的时候，提示错误，最终通过手动加载内核安装系统发现，是由于固件错误的读取了光盘里的文件， 所以这里以光驱手动安装系统为例 devls 查看光驱的设备名称
+
+load /dev/fs/iso9660@usb0/boot/vmlinuz_2k1000
+
+initrd /dev/fs/iso9660@usb0/BOOT/initrd.img_2k1000
+
+g console=tty rootdelay=5 quiet splash livecd-installer locales=zh_CN.UTF-8 boot=live
+
+在pmon命令行下执行load /dev/fs/iso9660@usb0/可以查看到光驱里面的文件
+
+2. 测试中发现：概率性出现更改内核display参数后断电重启不生效，bug链接：https://pms.uniontech.com/zentao/bug-view-65495.html。 这个是因为更改只停留在内存当中，并没有真实的落盘，在断电前先执行下sudo poweroff将更改信息落盘，从而真正的生效。
+
+串口测试
+
+3. 测试串口通信的基本思路:先测回环、再测两个设备间的串口通信 3A4000设备有RS232调试串口和7A1000TTL串口、2K1000设备只有RS232调试串口，没有7A1000TTL串口
+4. 设置串口的波特率大小 stty -F 设备名 ispeed 115200 ospeed 115200 cs8 ，使用这条命令就是说不用minicom，而是用echo 123 > /dev/ttyS4； cat /dev/ttyS4的方式进行测试串口通信
+
+ispeed 115200： 将工作站输入速度设置为指定的speed数(位/秒)
+ospeed 115200:  将工作站输出速度设置为指定的speed数(位/秒)
+cs8 字符大小 8位
+7A1000TTL串口测试的基本思路如下： 先测试回环后测试两个设备之间的串口通信（PC1--PC2）
+
+回环测试：
+使用minicom，设置好设备名，一般是/dev/ttyS4 （具体可通过cat /proc/tty/driver/serial确认）,波特率大小115200 （单位：位/秒）
+截图录屏 选择区域 20210507132404.png
+将7A1000TTL串口线短接，TX接RX
+在minicom会话页面,键入字符，minicom页面显示键入的字符内容；还有另外一种方法： echo 1234 > /dev/ttyS4; 同时cat /dev/ttyS4,查看设备/dev/ttyS4是否收到了1234内容，如果能够收到，表示7A1000TTL串口通信是正常的
+
+设备间的串口通信测试：
+
+回环测试没有问题，一般就表示7A1000TTL串口通信是ok的，后面可以再测试设备间的串口通信，需要使用USB转TTL模块来进行测试，TX-RX，RX-TX，GND-GND；来进行测试，如果设备的USB转TTL模块没有做电平转换，还需要再拿一个电平转换模块进行测试。
+
+截图录屏 选择区域 20210507140801.png
+can通信测试
+
+什么是CAN通信？ CAN 是Controller Area Network 的缩写（以下称为CAN），是ISO国际标准化的串行通信协议。在汽车产业中，出于对安全性、舒适性、方便性、低功耗、低成本的要求，各种各样的电子控制系统被开发了出来。由于这些系统之间通信所用的数据类型及对可靠性的要求不尽相同，由多条总线构成的情况很多，线束的数量也随之增加。为适应“减少线束的数量”、“通过多个LAN，进行大量数据的高速通信”的需要，1986 年德国电气商博世公司开发出面向汽车的CAN 通信协议。此后，CAN 通过ISO11898 及ISO11519 进行了标准化，在欧洲已是汽车网络的标准协议。 CAN 的高性能和可靠性已被认同，并被广泛地应用于工业自动化、船舶、医疗设备、工业设备等方面。现场总线是当今自动化领域技术发展的热点之一，被誉为自动化领域的计算机局域网。它的出现为分布式控制系统实现各节点之间实时、可靠的数据通信提供了强有力的技术支持。
+
+截图录屏 选择区域 20210507131227.png
+CAN通信测试 在207厢火项目中，CAN通信测试借助了USBCAN-II Pro V502工具，该工具的驱动：https://filewh.uniontech.com/d/57f9476cd78648c9aa78/ ,将驱动安装在windows系统上，并将USBCAN-II Pro V502设备接入Windows系统内，另一端接个H,L线并接入待测设备，同时将cantest for linux测试工具：https://filewh.uniontech.com/d/eb75122fe64e437482b9/ 上传至待测设备， 具体测试步骤如下：
+
+截图录屏 选择区域 20210507135748.png
+ECANTOOLS.png
+捕获2.png
+3fb483bf6826ca0f4a460f61d779b5b0.jpg
+GPIO驱动测试 什么是GPIO？ GPIO=General Purpose Input Output，通用输入输出。有时候简称为“IO口”。输入输出，就是说既能当输入口使用，又能当输出口使用，总结：GPIO就是芯片上的一根干啥都行的引脚。GPIO控制LED灯的开关， GPIO用来做开关控制，是最常见的应用场景。 在207厢火项目中， GPIO驱动测试如下

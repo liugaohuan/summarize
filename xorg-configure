@@ -1,0 +1,9 @@
+如何生成一个xorg.conf模板？
+
+1. 在命令行下切换到root身份；
+
+2. 执行命令“ cp /var/log/Xorg.0.log /var/log/Xorg.1.log";
+
+3. 执行命令” Xorg -configure :1";
+
+4. 执行命令3后 xorg.conf.new 在 /root/ 目录下生成，该文件可以做为当前系统的xorg.conf的基本模板使用了。
